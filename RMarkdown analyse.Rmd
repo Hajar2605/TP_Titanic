@@ -1,0 +1,99 @@
+---
+title: "RMarkdown Analyse"
+output: html_document
+date: "2024-11-14"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+ 
+#question 2
+```{r}
+library(carData)
+data("TitanicSurvival")
+print(TitanicSurvival)
+```
+
+
+```{r}
+# Construire l'histogramme pour les deux catégories de survie
+ggplot(TitanicSurvival_clean, aes(x = sex, fill = survived)) +
+  geom_bar(position = "dodge", color = "black", alpha = 0.8) +  # Barres côte à côte
+  labs(
+    title = "Répartition des survivants et non-survivants par sexe",
+    x = "Sexe",
+    y = "Nombre de passagers",
+    fill = "Survie"
+  ) +
+  scale_fill_manual(values = c("Non-survivant" = "#FF9999", "Survivant" = "#32CD32")) +  # Rose pour non-survivants, bleu pour survivants
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),  # Titre centré
+    legend.position = "bottom"  # Légende en bas
+  )
+
+
+```
+Les données montrent que les femmes ont eu un taux de survie nettement supérieur à celui des hommes, avec 339 survivantes contre 127 hommes survivants. À l'inverse, les hommes représentent la grande majorité des non-survivants, soit 682 contre 161 femmes non-survivantes. Ces résultats reflètent les priorités d'évacuation "les femmes et les enfants d'abord" lors du naufrage, où les hommes ont souvent sacrifié leurs chances de survie pour aider à l'évacuation.
+
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Construire l'histogramme avec deux barres par classe (survivants et non-survivants)
+ggplot(TitanicSurvival_clean, aes(x = passengerClass, fill = survived)) +
+  geom_bar(position = "dodge", color = "black", alpha = 0.8) +  # Barres côte à côte
+  labs(
+    title = "Nombre de survivants et non-survivants en fonction de la classe",
+    x = "Classe des passagers",
+    y = "Nombre de passagers",
+    fill = "Survie"
+  ) +
+  scale_fill_manual(values = c(
+    "Non-survivant" = "#FF9999",  # Rose clair pour non-survivants
+    "Survivant" =  "#32CD32"      # Bleu clair pour survivants
+  )) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),  # Titre centré
+    legend.position = "bottom"  # Légende en bas
+  )
+
+```
+
+
+
+
+```{r}
+# Nettoyer les données et s'assurer que 'survived' est un facteur
+data <- TitanicSurvival %>%
+  na.omit() %>%
+  mutate(survived = factor(survived, levels = c(0, 1), labels = c("Non-survivant", "Survivant")),
+         sex = factor(sex, levels = c("male", "female")))
+
+# Nettoyer les données (supprimer les NA dans les colonnes nécessaires)
+TitanicSurvival_clean <- TitanicSurvival %>%
+  filter(!is.na(survived) & !is.na(sex) & !is.na(passengerClass)) %>%  # Retirer les lignes avec NA
+  mutate(
+    survived = factor(survived, levels = c("no", "yes"), labels = c("Non-survivant", "Survivant")),  # Convertir 'survived' en facteur
+    sex = factor(sex, levels = c("male", "female")),  # Assurer que 'sex' est aussi un facteur
+    passengerClass = factor(passengerClass, levels = c("1st", "2nd", "3rd"))  # Assurer l'ordre des classes
+  )
+# Créer un boxplot pour visualiser l'âge en fonction de la variable 'survived' sans légende
+ggplot(TitanicSurvival_clean, aes(x = survived, y = age, fill = survived)) +
+  geom_boxplot() +
+  labs(title = "Répartition de l'Âge en fonction de la Survie",
+       x = "Survécu",
+       y = "Âge") +
+  scale_fill_manual(values = c("Non-survivant" = "red", "Survivant" = "pink")) +  # Couleurs pour les groupes
+  theme_minimal() +
+  theme(legend.position = "none")  # Supprime la légende
+
+```
+
+
+
+
